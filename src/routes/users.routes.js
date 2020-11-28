@@ -14,7 +14,7 @@ const { verifyToken, moderatorMiddleware, adminMiddleware } = require("../middle
 
 router.get("/", [verifyToken, moderatorMiddleware], getUsers);
 router.get("/profile", verifyToken, profileUser);
-router.get("/login", loginUser);
+router.post("/login", loginUser);
 router.post("/", createUser);
 router.get("/:id", verifyToken, getUserById);
 router.delete("/:id", [verifyToken, adminMiddleware], deleteUser);

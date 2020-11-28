@@ -5,7 +5,7 @@ require("dotenv").config();
 
 async function getUsers(req, res) {
   try {
-    const users = await User.find({},{ password: 0 });
+    const users = await User.find({}, { password: 0 });
     res.status(200).json({
       message: "Usuarios encontrados",
       status: 200,
@@ -132,23 +132,35 @@ async function profileUser(req, res) {
 }
 
 async function loginUser(req, res) {
-  const { correo, password } = req.body;
   try {
-    const user = await User.findOne({ correo });
-    if (!user) {
-      return res
-        .status(404)
-        .json({ message: "Usuario no encontrado", status: 404 });
+    const { correo, password } = req.body;
+    if (!correo || !password) {
+      return res.status(403).send({ message: "Datos requeridos" });
     }
+    const user = await User.findOne({ correo });
+    console.log(user);
+    if (!user) {
+      return res.status(404).json({
+        message: "Usuario no encontrado",
+        status: 404,
+        data: req.body,
+      });
+    }
+    const role = await Role.findById(user.roles)
+    const roleName = role.name
     const isValid = await user.validatePassword(password);
     if (isValid) {
-      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-        expiresIn: 60 * 60 * 24,
-      });
+      const token = jwt.sign(
+        { id: user._id, roles: user.roles },
+        process.env.JWT_SECRET,
+        {
+          expiresIn: 60 * 60 * 24,
+        }
+      );
       return res.status(200).json({
         message: "Logeado satisfactoriamente",
-        status: 200,
         token,
+        roleName
       });
     } else
       return res.status(401).json({
