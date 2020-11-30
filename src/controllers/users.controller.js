@@ -8,25 +8,25 @@ async function getUsers(req, res) {
     const users = await User.find({}, { password: 0 });
     res.status(200).json({
       message: "Usuarios encontrados",
-      status: 200,
       data: users,
     });
   } catch (error) {}
 }
 
 async function createUser(req, res) {
-  const { nombre, apellido, correo, password } = req.body;
 
   try {
+  const { nombre, apellido, correo, password, role } = req.body;
     const newUser = new User({
       nombre,
       apellido,
       correo,
       password,
+      role
     });
 
-    const role = await Role.findOne({ name: "user" });
-    newUser.roles = [role._id];
+    const userRole = role ? await Role.findOne({name: role}) : await Role.findOne({ name: "user" });
+    newUser.roles = [userRole._id];
     newUser.password = await newUser.encryptPassword(password);
     await newUser.save();
 
@@ -36,7 +36,6 @@ async function createUser(req, res) {
 
     res.status(200).json({
       message: `Usuario ${nombre} creado satisfactoriamente`,
-      status: 200,
       data: { newUser },
       token,
     });
