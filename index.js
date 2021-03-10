@@ -7,6 +7,7 @@ const cors = require('cors')
 
 //controladores
 const users = require("./src/routes/users.routes");
+const empresas = require("./src/routes/empresas.routes");
 
 // inicializacion
 const app = express();
@@ -24,6 +25,8 @@ app.use(cors())
 
 //Rutas
 app.use("/api/users", users);
+app.use("/api/empresas", empresas);
+
 
 const port = process.env.PORT || 3500;
 app.listen(port, function () {
